@@ -12,19 +12,7 @@ Additional Requirements:
 '''
 
 '''
-Uncertainty: 
-time: Based on my review of the documentation for the API there does not seem to be a "history air quality" look up feature
-    So I assumed the averaging starts after program starts.
-definition of station: according to requirement "Print PM2.5 sampled value for each station.". However
-    what identifies a station is not stated, I implemented the program using name for readability.
-'''
-
-'''
 known issues:
-if any station/system fails at anytime, the entire averaging process will fail
-because of API access time, access time will be longer than expected (eg: if sampling every 10 second, 
-    actual time is 10 + API time), this can be resolved by using system clock or multithreading.
-    However, this first requires constant for loop (power intensive), latter is too complicated for the task.
 sampling time and rate can be float but must be of a reasonable range (this depend on device so not checked in code)
     suggested time: 0~10
     suggested rate: 0.1~16
@@ -32,11 +20,11 @@ sampling time and rate can be float but must be of a reasonable range (this depe
 
 '''
 sample run command:
-sample 8 times per minuit for 2 minuit (3 station)
+sample 8 times per minute for 2 minute (3 station)
     python pm25.py 39 116 41 116.04 2 8
-sample 1 times per minuit for 3 minuit
+sample 1 times per minute for 3 minute
     python pm25.py 39 116 41 116.04 3
-sample 1 times per minuit for 5 minuit
+sample 1 times per minute for 5 minute
     python pm25.py 39 116 41 116.04 
 
 '''
