@@ -1,15 +1,19 @@
+
 '''
+------------------Start of reading------------------------
 Date: April 26, 2022
-Auther: Guan Zheng Huang
-Task number: NA
-Task name: OSENSA AQI Python CMD Line Assignment
-Edit: NA
-Goal: calculate average of air pollutant PM2.5 in a specified region
+Author: Guan Huang
+Project Description: Air pollutant PM2.5 calculator within input region (average, and more)
+Project Purpose: Create a tool that can be easily embedded into any software application
+Additional Requirements: 
+- Parameter passible through python arguments
+- Parameter passible through function arguments
+- Concurrency safe
 '''
 
 '''
 Uncertainty: 
-time: Based on my review of the documentiation for the API there does not seem to be a "history air quality" look up feature
+time: Based on my review of the documentation for the API there does not seem to be a "history air quality" look up feature
     So I assumed the averaging starts after program starts.
 definition of station: according to requirement "Print PM2.5 sampled value for each station.". However
     what identifies a station is not stated, I implemented the program using name for readability.
@@ -110,8 +114,8 @@ def pm25Calc():
     #print(stationData)
     print("Average PM 2.5 for all stations in reigion: ", pm25avg)
 
-#@param: lat1/lat2: lattitude of region to search
-#@param: lng1/lng2: longtitude of region to search
+#@param: lat1/lat2: latitude of region to search
+#@param: lng1/lng2: longitude of region to search
 #@return: Array of station ID in reigion (using ID instead of name as searcg by stations do not return city name needed for city feed
 #search for all monitor station in defined region
 def getStations(lat1, lng1, lat2, lng2):
