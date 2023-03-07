@@ -28,28 +28,29 @@ import requests
 import time
 
 '''calculate average of air pollutant PM2.5 over n minutes for each station and average of all station in a specified region
-def pm25Calc(lat1, lng1, lat2, lng2, samplingTime=5, samplingRate=1):
+def pm25Calc(lat1, lng1, lat2, lng2, sampling_time=5, sampling_Rate=1):
 @param: lat1:float: latitude of first position to lock
 @param: lng1:float: longitude of first position to lock
 @param: lat2:float: latitude of second position to lock
 @param: lng2:float: longitude of second position to lock
-@param: samplingTime:float: time to sample (second), suggested time: 0~10
-@param: samplingRate:int: number of times to sample per second (times/second), suggested rate: 0.1~16
+@param: sampling_time:float: time to sample (second), suggested time: 0~10
+@param: sampling_Rate:int: number of times to sample per second (times/second), suggested rate: 0.1~16
 @return: None
 arguments 1: lat1
 arguments 2: lng1
 arguments 3: lat2
 arguments 4: lng2
-arguments 5: samplingTime
-arguments 6: samplingRate
+arguments 5: sampling_time
+arguments 6: sampling_Rate
 '''
-def pm25Calc(lat1, lng1, lat2, lng2, samplingTime=5, samplingRate=1):
+def pm25Calc(lat1, lng1, lat2, lng2, sampling_time=5, sampling_Rate=1):
+    # Parameter and Argument normalization
     lat1 = sys.argv[1] if len(sys.argv) >=5 else lat1
     lng1 = sys.argv[2] if len(sys.argv) >=5 else lng1
     lat2 = sys.argv[3] if len(sys.argv) >=5 else lat2
     lng2 = sys.argv[4] if len(sys.argv) >=5 else lng2
-    samplingTime = sys.argv[5] if len(sys.argv) >=6 else samplingTime
-    samplingRate = sys.argv[6] if len(sys.argv) >=7 else samplingRate
+    sampling_time = sys.argv[5] if len(sys.argv) >=6 else sampling_time
+    sampling_rate = sys.argv[6] if len(sys.argv) >=7 else sampling_rate
     if len(sys.argv) >= 8:
         raise Warning("Input argument number beyond needed, extra argument ignored.")
 
@@ -61,7 +62,7 @@ def pm25Calc(lat1, lng1, lat2, lng2, samplingTime=5, samplingRate=1):
     pm25_per_station = []
 
     #calculate total number of times sampling, round this to get integer
-    totalSampleNumber = round(samplingTime * samplingRate) if totalSampleNumber >= 1 else 1
+    totalSampleNumber = round(sampling_time * sampling_Rate) if totalSampleNumber >= 1 else 1
 
     #first sample and create array to record sample for each station
     for station in stations:
@@ -70,7 +71,7 @@ def pm25Calc(lat1, lng1, lat2, lng2, samplingTime=5, samplingRate=1):
     #sampling afterword
     for _ in range(totalSampleNumber - 1):
         #see above "known issues" for reasons to use sleep
-        time.sleep(60/samplingRate)
+        time.sleep(60/sampling_Rate)
         for station in range(len(stations)):
             pm25_per_station[station]+=getPM25(station)/totalSampleNumber
 
