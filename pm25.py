@@ -27,36 +27,36 @@ import json
 import requests
 import time
 
-'''calculate average of air pollutant PM2.5 over n minutes for each station and average of all station in a specified region
-def pm25Calc(lat1, lng1, lat2, lng2, sampling_count=5, sampling_rate=1):
-@param: lat1:float: latitude of first position to lock
-@param: lng1:float: longitude of first position to lock
-@param: lat2:float: latitude of second position to lock
-@param: lng2:float: longitude of second position to lock
-@param: sampling_count:float: number of times to sample (count), suggested sampling count: <=6/min
-@param: sampling_time:float: time the sampling will last in minute, suggested time: <10 min
-@return: None
-arguments 1: lat1
-arguments 2: lng1
-arguments 3: lat2
-arguments 4: lng2
-arguments 5: sampling_count
-arguments 6: sampling_rate
-'''
+
 class PM25_Calculator:
-    self.token = 
-    def __init__(self, lat1, lng1, lat2, lng2, sampling_count=5, sampling_rate=1):
+    '''A PM 2.5 calculator inside a specified square area'''
+    
+    waqi_token = "" # one can but should not be leaving tokens here, environment variable is suggested
+    
+    '''calculate average of air pollutant PM2.5 over n minutes for each station and average of all station in a specified region
+    def pm25Calc(lat1, lng1, lat2, lng2, sampling_count=5, sampling_time=1):
+    @param: lat1:float: latitude of first position to lock
+    @param: lng1:float: longitude of first position to lock
+    @param: lat2:float: latitude of second position to lock
+    @param: lng2:float: longitude of second position to lock
+    @param: sampling_count:float: number of times to sample (count), suggested sampling count: <=6/min
+    @param: sampling_time:float: time the sampling will last in minute, suggested time: <10 min
+    @param: waqi_token:string: time the sampling will last in minute, suggested time: <10 min
+    @return: None
+    '''
+    def __init__(self, lat1, lng1, lat2, lng2, sampling_count=5, sampling_time=1, waqi_token=""):
         # Parameter and Argument normalization
-        self.lat1 = sys.argv[1] if len(sys.argv) >=5 else lat1
-        self.lng1 = sys.argv[2] if len(sys.argv) >=5 else lng1
-        self.lat2 = sys.argv[3] if len(sys.argv) >=5 else lat2
-        self.lng2 = sys.argv[4] if len(sys.argv) >=5 else lng2
-        self.sampling_count = sys.argv[5] if len(sys.argv) >=6 else sampling_count
-        self.sampling_rate = sys.argv[6] if len(sys.argv) >=7 else sampling_rate
+        self.lat1 = lat1
+        self.lng1 = lng1
+        self.lat2 = lat2
+        self.lng2 = lng2
+        self.sampling_count = sampling_count
+        self.sampling_time = sampling_time
+        self.waqi_token = waqi_token
         if len(sys.argv) >= 8:
             raise Warning("Input argument number beyond needed, extra argument ignored.")
         
-    def get_pm25(self, sampling_count=5, sampling_rate=1):
+    def get_pm25(self, sampling_count=5, sampling_time=1):
         
         #get stations based on location region specified
         stations = self.getStations(lat1, lng1, lat2, lng2)
@@ -66,7 +66,7 @@ class PM25_Calculator:
         pm25_per_station = []
 
         #calculate total number of times sampling, round this to get integer
-        totalSampleNumber = round(sampling_count * sampling_rate) if totalSampleNumber >= 1 else 1
+        totalSampleNumber = round(sampling_count * sampling_time) if totalSampleNumber >= 1 else 1
 
         #first sample and create array to record sample for each station
         for station in stations:
@@ -75,7 +75,7 @@ class PM25_Calculator:
         #sampling afterword
         for _ in range(totalSampleNumber - 1):
             #see above "known issues" for reasons to use sleep
-            time.sleep(60/sampling_rate)
+            time.sleep(60/sampling_time)
             for station in range(len(stations)):
                 pm25_per_station[station]+=self.getPM25(station)/totalSampleNumber
 
@@ -133,9 +133,9 @@ if __name__ == "__main__":
     lat2 = sys.argv[3]
     lng2 = sys.argv[4]
     sampling_count = sys.argv[5] if len(sys.argv) >=6 else -1
-    sampling_rate = sys.argv[6] if len(sys.argv) >=7 else -1
+    sampling_time = sys.argv[6] if len(sys.argv) >=7 else -1
     if len(sys.argv) >= 8:
         raise Warning("Input argument number beyond needed, extra argument ignored.")
     # Pass result to calculator class
     param_calculator = PM25_Calculator(lat1, lng1, lat2, lng2)
-    param_calculator.get_pm25(sampling_count, sampling_rate)
+    param_calculator.get_pm25(sampling_count, sampling_time)
