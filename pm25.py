@@ -1,26 +1,18 @@
-'''
-Date: April 26, 2022
-Auther: Guan Zheng Huang
-Task number: NA
-Task name: OSENSA AQI Python CMD Line Assignment
-Edit: NA
-Goal: calculate average of air pollutant PM2.5 in a specified region
-'''
 
 '''
-Uncertainty: 
-time: Based on my review of the documentiation for the API there does not seem to be a "history air quality" look up feature
-    So I assumed the averaging starts after program starts.
-definition of station: according to requirement "Print PM2.5 sampled value for each station.". However
-    what identifies a station is not stated, I implemented the program using name for readability.
+------------------Start of reading------------------------
+Date: April 26, 2022
+Author: Guan Huang
+Project Description: Air pollutant PM2.5 calculator within input region (average, and more)
+Project Purpose: Create a tool that can be easily embedded into any software application
+Additional Requirements: 
+- Parameter passible through python arguments
+- Parameter passible through function arguments
+- Concurrency safe
 '''
 
 '''
 known issues:
-if any station/system fails at anytime, the entire averaging process will fail
-because of API access time, access time will be longer than expected (eg: if sampling every 10 second, 
-    actual time is 10 + API time), this can be resolved by using system clock or multithreading.
-    However, this first requires constant for loop (power intensive), latter is too complicated for the task.
 sampling time and rate can be float but must be of a reasonable range (this depend on device so not checked in code)
     suggested time: 0~10
     suggested rate: 0.1~16
@@ -28,11 +20,11 @@ sampling time and rate can be float but must be of a reasonable range (this depe
 
 '''
 sample run command:
-sample 8 times per minuit for 2 minuit (3 station)
+sample 8 times per minute for 2 minute (3 station)
     python pm25.py 39 116 41 116.04 2 8
-sample 1 times per minuit for 3 minuit
+sample 1 times per minute for 3 minute
     python pm25.py 39 116 41 116.04 3
-sample 1 times per minuit for 5 minuit
+sample 1 times per minute for 5 minute
     python pm25.py 39 116 41 116.04 
 
 '''
@@ -110,8 +102,8 @@ def pm25Calc():
     #print(stationData)
     print("Average PM 2.5 for all stations in reigion: ", pm25avg)
 
-#@param: lat1/lat2: lattitude of region to search
-#@param: lng1/lng2: longtitude of region to search
+#@param: lat1/lat2: latitude of region to search
+#@param: lng1/lng2: longitude of region to search
 #@return: Array of station ID in reigion (using ID instead of name as searcg by stations do not return city name needed for city feed
 #search for all monitor station in defined region
 def getStations(lat1, lng1, lat2, lng2):
