@@ -34,7 +34,7 @@ def pm25Calc(lat1, lng1, lat2, lng2, samplingTime=5, samplingRate=1):
 @param: lat2:float: latitude of second position to lock
 @param: lng2:float: longitude of second position to lock
 @param: samplingTime:float: time to sample (second), suggested time: 0~10
-@param: samplingRate:int: number of times to sample in the given samplingTime (times), suggested rate: 0.1~16
+@param: samplingRate:int: number of times to sample per second (times/second), suggested rate: 0.1~16
 @return: None
 arguments 1: lat1
 arguments 2: lng1
@@ -49,7 +49,7 @@ def pm25Calc(lat1, lng1, lat2, lng2, samplingTime=5, samplingRate=1):
     lat2 = sys.argv[3] if len(sys.argv) >=5 else lat2
     lng2 = sys.argv[4] if len(sys.argv) >=5 else lng2
     samplingTime = sys.argv[5] if len(sys.argv) >=6 else samplingTime
-    samplingRate = sys.argv[6] if len(sys.argv) >=7 else int(samplingRate)
+    samplingRate = sys.argv[6] if len(sys.argv) >=7 else samplingRate
     if len(sys.argv) >= 8:
         raise Warning("Input argument number beyond needed, extra argument ignored.")
 
@@ -58,29 +58,26 @@ def pm25Calc(lat1, lng1, lat2, lng2, samplingTime=5, samplingRate=1):
     stationName = getStationsName(lat1, lng1, lat2, lng2) # this is added for readability of result
     
     #station ID is a better indication of station globally
-    pm25EachStation = []
+    pm25_averaged_per_sation = []
 
     #calculate total number of times sampling, round this to get integer
-    totalSampleNumber = int(samplingTime*samplingRate) 
-    #should sample at least once
-    if totalSampleNumber<1: totalSampleNumber = 1
+    totalSampleNumber = round(samplingTime * samplingRate) if totalSampleNumber >= 1 else 1
 
     #first sample and create array to record sample for each station
     for station in stations:
-        pm25EachStation.append(getPM25(station)/totalSampleNumber)
+        pm25_averaged_per_sation.append(getPM25(station)/totalSampleNumber)
 
     #sampling afterword
-    for samplingCounter in range(totalSampleNumber-1):
+    for _ in range(totalSampleNumber - 1):
         #see above "known issues" for reasons to use sleep
         time.sleep(60/samplingRate)
         for station in range(len(stations)):
-            pm25EachStation[station]+=getPM25(station)/totalSampleNumber
+            pm25_averaged_per_sation[station]+=getPM25(station)/totalSampleNumber
 
     #printing
-    pm25avg = sum(pm25EachStation)/len(pm25EachStation)
-    
-    #place data in map so it follows 
-    stationData = dict(zip(stationName, pm25EachStation))
+    pm25avg = sum(pm25EachStation)/len(pm25_averaged_per_sation)
+    #place data in map for return 
+    stationData = dict(zip(stationName, pm25_averaged_per_sation))
     print("PM 2.5 for each station:")
     for stationCount in range(len(stationName)):
         print(list(stationData.items())[stationCount])
@@ -88,6 +85,7 @@ def pm25Calc(lat1, lng1, lat2, lng2, samplingTime=5, samplingRate=1):
     #if consistent format as API is needed
     #print(stationData)
     print("Average PM 2.5 for all stations in region: ", pm25avg)
+    return stationData
 
 '''search for all monitor station in defined region
 @param: lat1:float: latitude of first position to lock
@@ -131,4 +129,6 @@ def getPM25(stationID):
 
 
 if __name__ == "__main__":
-    pm25Calc()
+    print (int(1.1))
+    print (round(1111.9))
+    #pm25Calc()
