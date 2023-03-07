@@ -58,26 +58,26 @@ def pm25Calc(lat1, lng1, lat2, lng2, samplingTime=5, samplingRate=1):
     stationName = getStationsName(lat1, lng1, lat2, lng2) # this is added for readability of result
     
     #station ID is a better indication of station globally
-    pm25_averaged_per_sation = []
+    pm25_per_station = []
 
     #calculate total number of times sampling, round this to get integer
     totalSampleNumber = round(samplingTime * samplingRate) if totalSampleNumber >= 1 else 1
 
     #first sample and create array to record sample for each station
     for station in stations:
-        pm25_averaged_per_sation.append(getPM25(station)/totalSampleNumber)
+        pm25_per_station.append(getPM25(station)/totalSampleNumber)
 
     #sampling afterword
     for _ in range(totalSampleNumber - 1):
         #see above "known issues" for reasons to use sleep
         time.sleep(60/samplingRate)
         for station in range(len(stations)):
-            pm25_averaged_per_sation[station]+=getPM25(station)/totalSampleNumber
+            pm25_per_station[station]+=getPM25(station)/totalSampleNumber
 
     #printing
-    pm25avg = sum(pm25EachStation)/len(pm25_averaged_per_sation)
+    pm25avg = sum(pm25_per_station)/len(pm25_per_station)
     #place data in map for return 
-    stationData = dict(zip(stationName, pm25_averaged_per_sation))
+    stationData = dict(zip(stationName, pm25_per_station))
     print("PM 2.5 for each station:")
     for stationCount in range(len(stationName)):
         print(list(stationData.items())[stationCount])
