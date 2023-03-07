@@ -12,14 +12,7 @@ Additional Requirements:
 '''
 
 '''
-known issues:
-sampling time and rate can be float but must be of a reasonable range (this depend on device so not checked in code)
-    suggested time: 0~10
-    suggested rate: 0.1~16
-'''
-
-'''
-sample run command:
+sample powershell command:
 sample 8 times per minute for 2 minute (3 station)
     python pm25.py 39 116 41 116.04 2 8
 sample 1 times per minute for 3 minute
@@ -34,40 +27,36 @@ import json
 import requests
 import time
 
-debug = False
+'''calculate average of air pollutant PM2.5 over n minutes for each station and average of all station in a specified region
+def pm25Calc(lat1, lng1, lat2, lng2, samplingTime=5, samplingRate=1):
+@param: lat1:float: latitude of first position to lock
+@param: lng1:float: longitude of first position to lock
+@param: lat2:float: latitude of second position to lock
+@param: lng2:float: longitude of second position to lock
+@param: samplingTime:float: time to sample (second), suggested time: 0~10
+@param: samplingRate:int: number of times to sample in the given samplingTime (times), suggested rate: 0.1~16
+@return: None
+arguments 1: lat1
+arguments 2: lng1
+arguments 3: lat2
+arguments 4: lng2
+arguments 5: samplingTime
+arguments 6: samplingRate
+'''
+def pm25Calc(lat1, lng1, lat2, lng2, samplingTime=5, samplingRate=1):
+    lat1 = sys.argv[1] if len(sys.argv) >=5 else lat1
+    lng1 = sys.argv[2] if len(sys.argv) >=5 else lng1
+    lat2 = sys.argv[3] if len(sys.argv) >=5 else lat2
+    lng2 = sys.argv[4] if len(sys.argv) >=5 else lng2
+    samplingTime = sys.argv[5] if len(sys.argv) >=6 else samplingTime
+    samplingRate = sys.argv[6] if len(sys.argv) >=7 else int(samplingRate)
+    if len(sys.argv) >= 8:
+        raise Warning("Input argument number beyond needed, extra argument ignored.")
 
-#@param: None (argv from system)
-#@return: None
-#require: requires input parameter to be between 5 and 7
-#require: lat and lng for first point in arg 1, 2, float
-#require: lat and lng for second point in arg 3, 4, float
-#require: total time to average in minuit in arg 5, positive float
-#require: number of times to sample per minuit in arg 6, positive float
-#effect: result is printed
-#calculate average of air pollutant PM2.5 over n minutes for each station and average of all station in a specified region
-def pm25Calc():
-    lat1 = sys.argv[1]
-    lng1 = sys.argv[2]
-    lat2 = sys.argv[3]
-    lng2 = sys.argv[4]
-    
-    #check if inputs are valid
-    if (len(sys.argv)==5):
-        samplingTime = 5
-        samplingRate = 1
-    elif (len(sys.argv)==6):
-        samplingTime = float(sys.argv[5])
-        samplingRate = 1
-    elif (len(sys.argv)==7):
-        samplingTime = float(sys.argv[5])
-        samplingRate = float(sys.argv[6])
-    else:
-        print("invalid input parameter number, there must be between 5 and 7 parameters")
-        exit()
-
-    #get station based on location region specified
+    #get stations based on location region specified
     stations = getStations(lat1, lng1, lat2, lng2)
     stationName = getStationsName(lat1, lng1, lat2, lng2) # this is added for readability of result
+    
     #station ID is a better indication of station globally
     pm25EachStation = []
 
@@ -79,7 +68,6 @@ def pm25Calc():
     #first sample and create array to record sample for each station
     for station in stations:
         pm25EachStation.append(getPM25(station)/totalSampleNumber)
-    if (debug): print (pm25EachStation)
 
     #sampling afterword
     for samplingCounter in range(totalSampleNumber-1):
@@ -87,7 +75,6 @@ def pm25Calc():
         time.sleep(60/samplingRate)
         for station in range(len(stations)):
             pm25EachStation[station]+=getPM25(station)/totalSampleNumber
-        if (debug): print (pm25EachStation)
 
     #printing
     pm25avg = sum(pm25EachStation)/len(pm25EachStation)
@@ -98,42 +85,50 @@ def pm25Calc():
     for stationCount in range(len(stationName)):
         print(list(stationData.items())[stationCount])
 
-    #if consistant format as API is needed
+    #if consistent format as API is needed
     #print(stationData)
-    print("Average PM 2.5 for all stations in reigion: ", pm25avg)
+    print("Average PM 2.5 for all stations in region: ", pm25avg)
 
-#@param: lat1/lat2: latitude of region to search
-#@param: lng1/lng2: longitude of region to search
-#@return: Array of station ID in reigion (using ID instead of name as searcg by stations do not return city name needed for city feed
-#search for all monitor station in defined region
+'''search for all monitor station in defined region
+@param: lat1:float: latitude of first position to lock
+@param: lng1:float: longitude of first position to lock
+@param: lat2:float: latitude of second position to lock
+@param: lng2:float: longitude of second position to lock
+@return: Array of station ID in region (using ID instead of name as searcg by stations do not return city name needed for city feed
+'''
 def getStations(lat1, lng1, lat2, lng2):
     response = requests.get(("https://api.waqi.info//map/bounds?token=a680e3cd0496283661a9ab60a52c5a81e0e9c807&latlng="+ lat1 +","+ lng1 +","+ lat2 + "," + lng2))
     stationInArea = json.loads(response.text)
     stations = []
     for x in stationInArea["data"]:
         stations.append(x["uid"])
-    if (debug): print(stations)
     return stations
 
-#@param: lat1/lat2: lattitude of region to search
-#@param: lng1/lng2: longtitude of region to search
-#@return: station name for printing
-#search for all monitor station in defined region
+'''search for all monitor station in defined region
+@param: lat1:float: latitude of first position to lock
+@param: lng1:float: longitude of first position to lock
+@param: lat2:float: latitude of second position to lock
+@param: lng2:float: longitude of second position to lock
+@return: list: station name for printing
+'''
+
 def getStationsName(lat1, lng1, lat2, lng2):
     response = requests.get(("https://api.waqi.info//map/bounds?token=a680e3cd0496283661a9ab60a52c5a81e0e9c807&latlng="+ lat1 +","+ lng1 +","+ lat2 + "," + lng2))
     stationInArea = json.loads(response.text)
     stations = []
     for x in stationInArea["data"]:
         stations.append(x["station"]["name"])
-    if (debug): print(stations)
     return stations
 
-#@param stationID: id of the station to search
-#@return: station test of pm2.5 data
+'''
+@param stationID: id of the station to query
+@return: current pm2.5 data of station
+'''
 def getPM25(stationID):
     response = requests.get("https://api.waqi.info/feed/@"+str(stationID)+"/?token=a680e3cd0496283661a9ab60a52c5a81e0e9c807")
     stationData = json.loads(response.text)
     return stationData["data"]["iaqi"]["pm25"]["v"]
+
 
 if __name__ == "__main__":
     pm25Calc()
