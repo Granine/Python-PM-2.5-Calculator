@@ -26,7 +26,7 @@ import sys
 import json
 import requests
 import time
-
+import os
 
 class PM25_Calculator:
     '''A PM 2.5 calculator inside a specified square area'''
@@ -39,28 +39,39 @@ class PM25_Calculator:
     @param: lng1:float: longitude of first position to lock
     @param: lat2:float: latitude of second position to lock
     @param: lng2:float: longitude of second position to lock
-    @param: sampling_count:float: number of times to sample (count), suggested sampling count: <=6/min
-    @param: sampling_time:float: time the sampling will last in minute, suggested time: <10 min
+    @param: sampling_count:float: number of times to sample per minute (count/minute), suggested sampling count: <=6/min
+    @param: sampling_time:float: time the sampling will last in minute (minute), suggested time: <10 min
     @param: waqi_token:string: time the sampling will last in minute, suggested time: <10 min
     @return: None
     '''
-    def __init__(self, lat1, lng1, lat2, lng2, sampling_count=5, sampling_time=1, waqi_token=""):
+    def __init__(self, lat1, lng1, lat2, lng2, waqi_token=""):
         # Parameter and Argument normalization
         self.lat1 = lat1
         self.lng1 = lng1
         self.lat2 = lat2
         self.lng2 = lng2
-        self.sampling_count = sampling_count
-        self.sampling_time = sampling_time
-        self.waqi_token = waqi_token
-        if len(sys.argv) >= 8:
-            raise Warning("Input argument number beyond needed, extra argument ignored.")
+
         
-    def get_pm25(self, sampling_count=5, sampling_time=1):
+        if waqi_token:
+            self.waqi_token = waqi_token
+        elif "waqi_token" in os.environ:
+            self.waqi_token = os.environ["waqi_token"]
+        else:
+            raise AttributeError("No waqi.com token provided")
+        
+    ''' Get average pm2.5 in area
+    @param: sampling_count:float: number of times to sample per minute (count/minute), suggested sampling count: <=6/min
+    @param: sampling_time:float: time the sampling will last in minute (minute), suggested time: <10 min
+    '''
+    def get_average_pm25(self, sampling_count=5, sampling_time=1):
+        if sampling_count <= 0:
+            raise AttributeError("Cannot process negative or zero sampling count")
+        if sampling_time <= 0:
+            raise AttributeError("Cannot process negative or zero sampling time")
         
         #get stations based on location region specified
-        stations = self.getStations(lat1, lng1, lat2, lng2)
-        stationName = self.getStationsName(lat1, lng1, lat2, lng2) # this is added for readability of result
+        stations = self.get_stations(lat1, lng1, lat2, lng2)
+        stationName = self.get_stations_name(lat1, lng1, lat2, lng2) # this is added for readability of result
         
         #station ID is a better indication of station globally
         pm25_per_station = []
@@ -70,14 +81,13 @@ class PM25_Calculator:
 
         #first sample and create array to record sample for each station
         for station in stations:
-            pm25_per_station.append(self.getPM25(station)/totalSampleNumber)
+            pm25_per_station.append(self.get_pm25(station)/totalSampleNumber)
 
         #sampling afterword
         for _ in range(totalSampleNumber - 1):
-            #see above "known issues" for reasons to use sleep
             time.sleep(60/sampling_time)
-            for station in range(len(stations)):
-                pm25_per_station[station]+=self.getPM25(station)/totalSampleNumber
+            for i, station in enumerate(stations):
+                pm25_per_station[i] += self.get_pm25(station)/totalSampleNumber
 
         #printing
         pm25avg = sum(pm25_per_station)/len(pm25_per_station)
@@ -95,7 +105,7 @@ class PM25_Calculator:
     '''search for all monitor station in defined region
     @return: Array of station ID in region (using ID instead of name as search by stations do not return city name needed for city feed
     '''
-    def getStations(self):
+    def get_stations(self):
         response = requests.get((f"https://api.waqi.info//map/bounds?token={self.waqi_token}&latlng="+ self.lat1 +","+ self.lng1 +","+ self.lat2 + "," + self.lng2))
         stationInArea = json.loads(response.text)
         stations = []
@@ -106,7 +116,7 @@ class PM25_Calculator:
     '''search for all monitor station in defined region
     @return: list: station name for printing
     '''
-    def getStationsName(self):
+    def get_stations_name(self):
         response = requests.get((f"https://api.waqi.info//map/bounds?token={self.waqi_token}&latlng="+ self.lat1 +","+ self.lng1 +","+ self.lat2 + "," + self.lng2))
         stationInArea = json.loads(response.text)
         station_names = []
@@ -114,11 +124,11 @@ class PM25_Calculator:
             station_names.append(x["station"]["name"])
         return station_names
 
-    '''
+    '''Given stationID, return current pm2.5 
     @param stationID: id of the station to query
     @return: current pm2.5 data of station
     '''
-    def getPM25(self, stationID):
+    def get_pm25(self, stationID):
         response = requests.get(f"https://api.waqi.info/feed/@{str(stationID)}/?token={self.waqi_token}")
         stationData = json.loads(response.text)
         return stationData["data"]["iaqi"]["pm25"]["v"]
@@ -139,4 +149,3 @@ if __name__ == "__main__":
     # Pass result to calculator class
     param_calculator = PM25_Calculator(lat1, lng1, lat2, lng2)
     pm25 = param_calculator.get_pm25(sampling_count, sampling_time)
-    print(pm25)
