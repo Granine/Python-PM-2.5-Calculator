@@ -70,37 +70,35 @@ class PM25_Calculator:
             raise AttributeError("Cannot process negative or zero sampling time")
         
         #get stations based on location region specified
-        stations = self.get_stations(lat1, lng1, lat2, lng2)
-        stationName = self.get_stations_name(lat1, lng1, lat2, lng2) # this is added for readability of result
+        station_ids = self.get_stations(lat1, lng1, lat2, lng2)
+        station_names = self.get_stations_name(lat1, lng1, lat2, lng2) # this is added for readability of result
         
         #station ID is a better indication of station globally
         pm25_per_station = []
 
         #calculate total number of times sampling, round this to get integer
-        totalSampleNumber = round(sampling_count * sampling_time) if totalSampleNumber >= 1 else 1
+        total_sample_number = round(sampling_count * sampling_time) if total_sample_number >= 1 else 1
 
         #first sample and create array to record sample for each station
-        for station in stations:
-            pm25_per_station.append(self.get_pm25(station)/totalSampleNumber)
+        for station in station_ids:
+            pm25_per_station.append(self.get_pm25(station)/total_sample_number)
 
         #sampling afterword
-        for _ in range(totalSampleNumber - 1):
+        for _ in range(total_sample_number - 1):
             time.sleep(60/sampling_time)
-            for i, station in enumerate(stations):
-                pm25_per_station[i] += self.get_pm25(station)/totalSampleNumber
+            for i, station in enumerate(station_ids):
+                pm25_per_station[i] += self.get_pm25(station)/total_sample_number
 
         #printing
-        pm25avg = sum(pm25_per_station)/len(pm25_per_station)
+        pm25_avg = sum(pm25_per_station)/len(pm25_per_station)
         #place data in map for return 
-        stationData = dict(zip(stationName, pm25_per_station))
-        print("PM 2.5 for each station:")
-        for stationCount in range(len(stationName)):
-            print(list(stationData.items())[stationCount])
+        station_data = dict(zip(station_names, pm25_per_station))
+        #print("---PM 2.5 for each station:---")
+        for station_index in range(len(station_names)):
+            print(station_names[station_index] + ": " + station_data[station_index])
 
-        #if consistent format as API is needed
-        #print(stationData)
-        print("Average PM 2.5 for all stations in region: ", pm25avg)
-        return stationData
+        #print(f"---Average PM 2.5 for all stations in region: {pm25avg}---")
+        return pm25_avg
 
     '''search for all monitor station in defined region
     @return: Array of station ID in region (using ID instead of name as search by stations do not return city name needed for city feed
@@ -148,4 +146,5 @@ if __name__ == "__main__":
         raise Warning("Input argument number beyond needed, extra argument ignored.")
     # Pass result to calculator class
     param_calculator = PM25_Calculator(lat1, lng1, lat2, lng2)
-    pm25 = param_calculator.get_pm25(sampling_count, sampling_time)
+    pm25_avg = param_calculator.get_pm25(sampling_count, sampling_time)
+    print(f"---Average PM 2.5 for all stations in region: {pm25_avg}---")
