@@ -96,7 +96,7 @@ class PM25_Calculator:
     @return: Array of station ID in region (using ID instead of name as search by stations do not return city name needed for city feed
     '''
     def getStations(self):
-        response = requests.get(("https://api.waqi.info//map/bounds?token=a680e3cd0496283661a9ab60a52c5a81e0e9c807&latlng="+ self.lat1 +","+ self.lng1 +","+ self.lat2 + "," + self.lng2))
+        response = requests.get((f"https://api.waqi.info//map/bounds?token={self.waqi_token}&latlng="+ self.lat1 +","+ self.lng1 +","+ self.lat2 + "," + self.lng2))
         stationInArea = json.loads(response.text)
         stations = []
         for x in stationInArea["data"]:
@@ -107,7 +107,7 @@ class PM25_Calculator:
     @return: list: station name for printing
     '''
     def getStationsName(self):
-        response = requests.get(("https://api.waqi.info//map/bounds?token=a680e3cd0496283661a9ab60a52c5a81e0e9c807&latlng="+ self.lat1 +","+ self.lng1 +","+ self.lat2 + "," + self.lng2))
+        response = requests.get((f"https://api.waqi.info//map/bounds?token={self.waqi_token}&latlng="+ self.lat1 +","+ self.lng1 +","+ self.lat2 + "," + self.lng2))
         stationInArea = json.loads(response.text)
         station_names = []
         for x in stationInArea["data"]:
@@ -118,8 +118,8 @@ class PM25_Calculator:
     @param stationID: id of the station to query
     @return: current pm2.5 data of station
     '''
-    def getPM25(stationID):
-        response = requests.get("https://api.waqi.info/feed/@"+str(stationID)+"/?token=a680e3cd0496283661a9ab60a52c5a81e0e9c807")
+    def getPM25(self, stationID):
+        response = requests.get(f"https://api.waqi.info/feed/@{str(stationID)}/?token={self.waqi_token}")
         stationData = json.loads(response.text)
         return stationData["data"]["iaqi"]["pm25"]["v"]
 
@@ -138,4 +138,5 @@ if __name__ == "__main__":
         raise Warning("Input argument number beyond needed, extra argument ignored.")
     # Pass result to calculator class
     param_calculator = PM25_Calculator(lat1, lng1, lat2, lng2)
-    param_calculator.get_pm25(sampling_count, sampling_time)
+    pm25 = param_calculator.get_pm25(sampling_count, sampling_time)
+    print(pm25)
