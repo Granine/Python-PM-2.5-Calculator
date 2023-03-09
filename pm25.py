@@ -10,7 +10,6 @@ Additional Requirements:
 - Parameter passible through function arguments
 - Concurrency safe
 '''
-
 '''
 sample powershell command:
 sample 8 times per minute for 2 minute (3 station)
@@ -19,7 +18,6 @@ sample 1 times per minute for 3 minute
     python pm25.py 39 116 41 116.04 3
 sample 1 times per minute for 5 minute
     python pm25.py 39 116 41 116.04 
-
 '''
 
 import sys
@@ -50,7 +48,6 @@ class PM25_Calculator:
         self.lng1 = lng1
         self.lat2 = lat2
         self.lng2 = lng2
-
         
         if waqi_token:
             self.waqi_token = waqi_token
@@ -104,7 +101,7 @@ class PM25_Calculator:
     @return: Array of station ID in region (using ID instead of name as search by stations do not return city name needed for city feed
     '''
     def get_stations(self):
-        response = requests.get((f"https://api.waqi.info//map/bounds?token={self.waqi_token}&latlng="+ self.lat1 +","+ self.lng1 +","+ self.lat2 + "," + self.lng2))
+        response = requests.get((f"https://api.waqi.info//map/bounds?token={self.waqi_token}&latlng=" + self.lat1 + "," + self.lng1 + "," + self.lat2 + "," + self.lng2))
         stationInArea = json.loads(response.text)
         stations = []
         for x in stationInArea["data"]:
@@ -115,7 +112,7 @@ class PM25_Calculator:
     @return: list: station name for printing
     '''
     def get_stations_name(self):
-        response = requests.get((f"https://api.waqi.info//map/bounds?token={self.waqi_token}&latlng="+ self.lat1 +","+ self.lng1 +","+ self.lat2 + "," + self.lng2))
+        response = requests.get((f"https://api.waqi.info//map/bounds?token={self.waqi_token}&latlng=" + self.lat1 + "," + self.lng1 + "," + self.lat2 + "," + self.lng2))
         stationInArea = json.loads(response.text)
         station_names = []
         for x in stationInArea["data"]:
@@ -140,8 +137,8 @@ if __name__ == "__main__":
     lng1 = sys.argv[2]
     lat2 = sys.argv[3]
     lng2 = sys.argv[4]
-    sampling_count = sys.argv[5] if len(sys.argv) >=6 else -1
-    sampling_time = sys.argv[6] if len(sys.argv) >=7 else -1
+    sampling_count = sys.argv[5] if len(sys.argv) >= 6 else - 1
+    sampling_time = sys.argv[6] if len(sys.argv) >= 7 else - 1
     if len(sys.argv) >= 8:
         raise Warning("Input argument number beyond needed, extra argument ignored.")
     # Pass result to calculator class
