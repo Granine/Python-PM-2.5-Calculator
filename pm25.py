@@ -9,14 +9,13 @@ Additional Requirements:
 - Parameter passible through python arguments
 - Parameter passible through function arguments
 - Concurrency safe
-'''
-'''
+
 sample powershell command:
-sample 8 times per minute for 2 minute (3 station)
+sample 8 times per minute for 2 minutes (3 stations)
     python pm25.py 39 116 41 116.04 2 8
-sample 1 times per minute for 3 minute
+sample 1 times per minute for 3 minutes
     python pm25.py 39 116 41 116.04 3
-sample 1 times per minute for 5 minute
+sample 1 times per minute for 5 minutes
     python pm25.py 39 116 41 116.04 
 '''
 
@@ -78,13 +77,13 @@ class PM25_Calculator:
 
         #first sample and create array to record sample for each station
         for station in station_ids:
-            pm25_per_station.append(self.get_pm25(station)/total_sample_number)
+            pm25_per_station.append(self.get_pm25(station) / total_sample_number)
 
         #sampling afterword
         for _ in range(total_sample_number - 1):
             time.sleep(60/sampling_time)
             for i, station in enumerate(station_ids):
-                pm25_per_station[i] += self.get_pm25(station)/total_sample_number
+                pm25_per_station[i] += self.get_pm25(station) / total_sample_number
 
         #printing
         pm25_avg = sum(pm25_per_station)/len(pm25_per_station)
