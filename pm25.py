@@ -51,15 +51,33 @@ class PM25_Calculator:
         if waqi_token:
             self.waqi_token = waqi_token
         elif "waqi_token" in os.environ:
-            self.waqi_token = os.environ["waqi_token"]
+            self.waqi_token = str(os.environ["waqi_token"])
         else:
             raise AttributeError("No waqi.com token provided")
         
-    ''' Get average pm2.5 in area
+    ''' Get average pm2.5 from all stations in area
     @param: sampling_count:float: number of times to sample per minute (count/minute), suggested sampling count: <=6/min
     @param: sampling_time:float: time the sampling will last in minute (minute), suggested time: <10 min
     '''
     def get_average_pm25(self, sampling_count=5, sampling_time=1):
+        # get all average for each station
+        station_average_data = self.get_average_pm25_per_station(sampling_count, sampling_time)
+        pm25_net = 0
+        
+        # calculate the net pm2.5 from all station
+        for station in station_average_data:
+            pm25_net += station_average_data[station]
+            
+        # average out 
+        pm25_avg = pm25_net/len(station_average_data)
+        
+        return pm25_avg
+    
+    ''' Get average pm2.5 for each station in the area
+    @param: sampling_count:float: number of times to sample per minute (count/minute), suggested sampling count: <=6/min
+    @param: sampling_time:float: time the sampling will last in minute (minute), suggested time: <10 min
+    '''
+    def get_average_pm25_per_station(self, sampling_count=5, sampling_time=1):
         if sampling_count <= 0:
             raise AttributeError("Cannot process negative or zero sampling count")
         if sampling_time <= 0:
@@ -76,25 +94,26 @@ class PM25_Calculator:
         total_sample_number = round(sampling_count * sampling_time) if total_sample_number >= 1 else 1
 
         #first sample and create array to record sample for each station
+        #TODO make sure even if one request failed, average can still be calculated
         for station in station_ids:
             pm25_per_station.append(self.get_pm25(station) / total_sample_number)
 
         #sampling afterword
         for _ in range(total_sample_number - 1):
-            time.sleep(60/sampling_time)
+            time.sleep(60 / sampling_time)
             for i, station in enumerate(station_ids):
                 pm25_per_station[i] += self.get_pm25(station) / total_sample_number
-
-        #printing
-        pm25_avg = sum(pm25_per_station)/len(pm25_per_station)
         #place data in map for return 
-        station_data = dict(zip(station_names, pm25_per_station))
+        station_average_data = dict(zip(station_names, pm25_per_station))
+        '''
         #print("---PM 2.5 for each station:---")
         for station_index in range(len(station_names)):
-            print(station_names[station_index] + ": " + station_data[station_index])
+            print(station_names[station_index] + ": " + station_average_data[station_index])
 
         #print(f"---Average PM 2.5 for all stations in region: {pm25avg}---")
-        return pm25_avg
+        '''
+        
+        return station_average_data
 
     '''search for all monitor station in defined region
     @return: Array of station ID in region (using ID instead of name as search by stations do not return city name needed for city feed
