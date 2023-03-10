@@ -84,8 +84,8 @@ class PM25_Calculator:
             raise AttributeError("Cannot process negative or zero sampling time")
         
         #get stations based on location region specified
-        station_ids = self.get_stations(lat1, lng1, lat2, lng2)
-        station_names = self.get_stations_name(lat1, lng1, lat2, lng2) # this is added for readability of result
+        station_ids = self.get_station_uids(lat1, lng1, lat2, lng2)
+        station_names = self.get_station_names(lat1, lng1, lat2, lng2) # this is added for readability of result
         
         #station ID is a better indication of station globally
         pm25_per_station = []
@@ -118,7 +118,7 @@ class PM25_Calculator:
     '''search for all monitor station in defined region
     @return: Array of station ID in region (using ID instead of name as search by stations do not return city name needed for city feed
     '''
-    def get_stations(self):
+    def get_station_uids(self):
         response = requests.get((f"https://api.waqi.info//map/bounds?token={self.waqi_token}&latlng=" + self.lat1 + "," + self.lng1 + "," + self.lat2 + "," + self.lng2))
         stationInArea = json.loads(response.text)
         stations = []
@@ -129,7 +129,7 @@ class PM25_Calculator:
     '''search for all monitor station in defined region
     @return: list: station name for printing
     '''
-    def get_stations_name(self):
+    def get_station_names(self):
         response = requests.get((f"https://api.waqi.info//map/bounds?token={self.waqi_token}&latlng=" + self.lat1 + "," + self.lng1 + "," + self.lat2 + "," + self.lng2))
         stationInArea = json.loads(response.text)
         station_names = []
