@@ -86,8 +86,8 @@ class PM25_Calculator:
             raise AttributeError("Cannot process negative or zero sampling time")
         
         #get stations based on location region specified
-        station_ids = self.get_station_ids(lat1, lng1, lat2, lng2)
-        station_names = self.get_station_names(lat1, lng1, lat2, lng2) # this is added for readability of result
+        station_ids = self.get_station_ids()
+        station_names = self.get_station_names() # this is added for readability of result
         
         #station ID is a better indication of station globally
         pm25_per_station = {}
@@ -168,12 +168,13 @@ if __name__ == "__main__":
     lng1:float = sys.argv[2]
     lat2:float = sys.argv[3]
     lng2:float = sys.argv[4]
-    sampling_count:float = sys.argv[5] if len(sys.argv) >= 6 else - 1
-    sampling_time:float = sys.argv[6] if len(sys.argv) >= 7 else - 1
+    sampling_count:float = float(sys.argv[5]) if len(sys.argv) >= 6 else - 1
+    sampling_time:float = float(sys.argv[6]) if len(sys.argv) >= 7 else - 1
     if len(sys.argv) >= 8:
         raise Warning("Input argument number beyond needed, extra argument ignored.")
     
     # Pass result to calculator class
     param_calculator = PM25_Calculator(lat1, lng1, lat2, lng2)
+    print (type(sampling_count))
     pm25_avg = param_calculator.get_average_pm25(sampling_count, sampling_time)
     print(f"---Average PM 2.5 for all stations in region: {pm25_avg}---")
