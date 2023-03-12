@@ -180,4 +180,4 @@ if __name__ == "__main__":
     # Pass result to calculator class
     param_calculator = PM25_Calculator(lat1, lng1, lat2, lng2)
     pm25_avg = param_calculator.get_average_pm25(sampling_frequency, sampling_time)
-    print(f"---Average PM 2.5 for all stations in region: {pm25_avg}---")
+    print(f"---Average PM 2.5 for all stations in region: {pm25_avg} mg/m^3---")
