@@ -156,7 +156,7 @@ class PM25_Calculator:
 
     '''Given stationID, return current pm2.5 
     @param stationID: id of the station to query
-    @return: current pm2.5 data of station
+    @return: current pm2.5 data of station (micro grams/cubic meter)
     '''
     def get_pm25(self, stationID):
         response = requests.get(f"https://api.waqi.info/feed/@{str(stationID)}/?token={self.waqi_token}")
