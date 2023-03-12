@@ -31,7 +31,7 @@ class PM25_Calculator:
     waqi_token:str = "" # one can but should not be leaving tokens here, environment variable is suggested
     
     '''calculate average of air pollutant PM2.5 over n minutes for each station and average of all station in a specified region
-    def pm25Calc(lat1, lng1, lat2, lng2, sampling_count=5, sampling_time=1):
+    def pm25Calc(lat1, lng1, lat2, lng2, sampling_frequency=5, sampling_time=1):
     @param: lat1:float: latitude of first position to lock
     @param: lng1:float: longitude of first position to lock
     @param: lat2:float: latitude of second position to lock
@@ -56,12 +56,12 @@ class PM25_Calculator:
             raise AttributeError("No waqi.com token provided")
         
     ''' Get average pm2.5 from all stations in area
-    @param: sampling_count:float: number of times to sample per minute (count/minute), suggested sampling count: <=6/min
+    @param: sampling_frequency:float: number of times to sample per minute (count/minute), suggested sampling count: <=6/min
     @param: sampling_time:float: time the sampling will last in minute (minute), suggested time: <10 min
     '''
-    def get_average_pm25(self, sampling_count=5, sampling_time=1):
+    def get_average_pm25(self, sampling_frequency=5, sampling_time=1):
         # get all average for each station
-        station_average_data = self.get_average_pm25_per_station(sampling_count, sampling_time)
+        station_average_data = self.get_average_pm25_per_station(sampling_frequency, sampling_time)
         pm25_net = 0
         
         # calculate the net average pm2.5 from all station
@@ -74,13 +74,13 @@ class PM25_Calculator:
         return pm25_avg
     
     ''' Get average pm2.5 for each station in the area
-    @param sampling_count:float: number of times to sample per minute (count/minute), suggested sampling count: <=6/min
+    @param sampling_frequency:float: number of times to sample per minute (count/minute), suggested sampling count: <=6/min
     @param sampling_time:float: time the sampling will last in minute (minute), suggested time: <10 min
     @param get_result_format:str: what to use as result dict key, name = station name, id = station id
     @return dict of (str:float): for each station in area, return the average pm25 collected
     '''
-    def get_average_pm25_per_station(self, sampling_count=5, sampling_time=1, get_result_format="name"):
-        if sampling_count <= 0:
+    def get_average_pm25_per_station(self, sampling_frequency=5, sampling_time=1, get_result_format="name"):
+        if sampling_frequency <= 0:
             raise AttributeError("Cannot process negative or zero sampling count")
         if sampling_time <= 0:
             raise AttributeError("Cannot process negative or zero sampling time")
@@ -97,17 +97,21 @@ class PM25_Calculator:
         fail_count = 0
         
         #calculate total number of times sampling, round this to get integer
-        total_sample_number = round(sampling_count * sampling_time) if sampling_count * sampling_time >= 1 else 1
+        total_sample_number = round(sampling_frequency * sampling_time) if sampling_frequency * sampling_time >= 1 else 1
         
         # initialize station dict
         for station in station_ids:
             pm25_per_station[station] = 0
             request_per_station[station] = 0
+        print(1)
 
         #sampling afterword
-        for _ in range(total_sample_number):
-            time.sleep(60 / sampling_time)
+        for i in range(total_sample_number):
+            if i > 0:
+                print(2)
+                time.sleep(60 / sampling_frequency)
             for station in station_ids:
+                print(3)
                 try:
                     pm25_per_station[station] += self.get_pm25(station)
                     request_per_station[station] += 1
@@ -168,13 +172,12 @@ if __name__ == "__main__":
     lng1:float = sys.argv[2]
     lat2:float = sys.argv[3]
     lng2:float = sys.argv[4]
-    sampling_count:float = float(sys.argv[5]) if len(sys.argv) >= 6 else - 1
+    sampling_frequency:float = float(sys.argv[5]) if len(sys.argv) >= 6 else - 1
     sampling_time:float = float(sys.argv[6]) if len(sys.argv) >= 7 else - 1
     if len(sys.argv) >= 8:
         raise Warning("Input argument number beyond needed, extra argument ignored.")
     
     # Pass result to calculator class
     param_calculator = PM25_Calculator(lat1, lng1, lat2, lng2)
-    print (type(sampling_count))
-    pm25_avg = param_calculator.get_average_pm25(sampling_count, sampling_time)
+    pm25_avg = param_calculator.get_average_pm25(sampling_frequency, sampling_time)
     print(f"---Average PM 2.5 for all stations in region: {pm25_avg}---")
