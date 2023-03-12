@@ -26,9 +26,9 @@ import time
 import os
 
 class PM25_Calculator:
-    '''A PM 2.5 calculator inside a specified square area'''
+    '''A PM 2.5 calculator for a specified square area'''
     
-    waqi_token = "" # one can but should not be leaving tokens here, environment variable is suggested
+    waqi_token:str = "" # one can but should not be leaving tokens here, environment variable is suggested
     
     '''calculate average of air pollutant PM2.5 over n minutes for each station and average of all station in a specified region
     def pm25Calc(lat1, lng1, lat2, lng2, sampling_count=5, sampling_time=1):
@@ -36,22 +36,22 @@ class PM25_Calculator:
     @param: lng1:float: longitude of first position to lock
     @param: lat2:float: latitude of second position to lock
     @param: lng2:float: longitude of second position to lock
-    @param: sampling_count:float: number of times to sample per minute (count/minute), suggested sampling count: <=6/min
-    @param: sampling_time:float: time the sampling will last in minute (minute), suggested time: <10 min
     @param: waqi_token:string: time the sampling will last in minute, suggested time: <10 min
-    @return: None
     '''
     def __init__(self, lat1, lng1, lat2, lng2, waqi_token=""):
         # Parameter and Argument normalization
-        self.lat1 = lat1
-        self.lng1 = lng1
-        self.lat2 = lat2
-        self.lng2 = lng2
+        self.lat1:float = lat1
+        self.lng1:float = lng1
+        self.lat2:float = lat2
+        self.lng2:float = lng2
         
+        # if waqi passed in, it should have the highest priority
         if waqi_token:
             self.waqi_token = waqi_token
+        # then read from environment variable
         elif "waqi_token" in os.environ:
             self.waqi_token = str(os.environ["waqi_token"])
+        # if both not found, error
         else:
             raise AttributeError("No waqi.com token provided")
         
