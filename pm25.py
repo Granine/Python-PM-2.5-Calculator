@@ -69,7 +69,7 @@ class PM25_Calculator:
             pm25_net += station_average_data[station]
             
         # average out 
-        pm25_avg = pm25_net/len(station_average_data)
+        pm25_avg = pm25_net / len(station_average_data)
         
         return pm25_avg
     
@@ -88,21 +88,29 @@ class PM25_Calculator:
         station_names = self.get_station_names(lat1, lng1, lat2, lng2) # this is added for readability of result
         
         #station ID is a better indication of station globally
-        pm25_per_station = []
+        pm25_per_station = {}
+        request_per_station = {}
 
         #calculate total number of times sampling, round this to get integer
         total_sample_number = round(sampling_count * sampling_time) if total_sample_number >= 1 else 1
 
-        #first sample and create array to record sample for each station
+        #init
         #TODO make sure even if one request failed, average can still be calculated
         for station in station_ids:
-            pm25_per_station.append(self.get_pm25(station) / total_sample_number)
+            pm25_per_station[station] = 0
+            request_per_station[station] = 0
 
         #sampling afterword
-        for _ in range(total_sample_number - 1):
+        for _ in range(total_sample_number):
             time.sleep(60 / sampling_time)
-            for i, station in enumerate(station_ids):
-                pm25_per_station[i] += self.get_pm25(station) / total_sample_number
+            for station in station_ids:
+                try:
+                    pm25_per_station[station] += self.get_pm25(station)
+                    request_per_station[station] += 1
+                except Exception as e:
+                    print(f"A request to station {station} failed")
+                    print(e)
+                    
         #place data in map for return 
         station_average_data = dict(zip(station_names, pm25_per_station))
         '''
