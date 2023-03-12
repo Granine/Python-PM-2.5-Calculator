@@ -97,7 +97,7 @@ class PM25_Calculator:
         fail_count = 0
         
         #calculate total number of times sampling, round this to get integer
-        total_sample_number = round(sampling_count * sampling_time) if total_sample_number >= 1 else 1
+        total_sample_number = round(sampling_count * sampling_time) if sampling_count * sampling_time >= 1 else 1
         
         # initialize station dict
         for station in station_ids:
