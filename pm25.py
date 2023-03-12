@@ -90,7 +90,10 @@ class PM25_Calculator:
         #station ID is a better indication of station globally
         pm25_per_station = {}
         request_per_station = {}
-
+        
+        # counter to calculate max fail
+        fail_count = 0
+        
         #calculate total number of times sampling, round this to get integer
         total_sample_number = round(sampling_count * sampling_time) if total_sample_number >= 1 else 1
 
@@ -107,9 +110,13 @@ class PM25_Calculator:
                 try:
                     pm25_per_station[station] += self.get_pm25(station)
                     request_per_station[station] += 1
-                except Exception as e:
+                except Exception:
+                    fail_count += 1
                     print(f"A request to station {station} failed")
-                    print(e)
+                    if fail_count >= total_sample_number * len(station_ids) / 100:
+                        fail_count = -total_sample_number * len(station_ids) # larger than total request number so Warning never triggers again
+                        raise Warning("Too many failed requests, upstream service may not be functioning correctly")
+                    
                     
         #place data in map for return 
         station_average_data = dict(zip(station_names, pm25_per_station))
@@ -167,7 +174,8 @@ if __name__ == "__main__":
     sampling_time = sys.argv[6] if len(sys.argv) >= 7 else - 1
     if len(sys.argv) >= 8:
         raise Warning("Input argument number beyond needed, extra argument ignored.")
+    
     # Pass result to calculator class
     param_calculator = PM25_Calculator(lat1, lng1, lat2, lng2)
-    pm25_avg = param_calculator.get_pm25(sampling_count, sampling_time)
+    pm25_avg = param_calculator.get_average_pm25(sampling_count, sampling_time)
     print(f"---Average PM 2.5 for all stations in region: {pm25_avg}---")
