@@ -65,8 +65,8 @@ class PM25_Calculator:
         pm25_net = 0
         
         # calculate the net pm2.5 from all station
-        for station in station_average_data:
-            pm25_net += station_average_data[station]
+        for station_name in station_average_data:
+            pm25_net += station_average_data[station_name]
             
         # average out 
         pm25_avg = pm25_net / len(station_average_data)
@@ -74,10 +74,12 @@ class PM25_Calculator:
         return pm25_avg
     
     ''' Get average pm2.5 for each station in the area
-    @param: sampling_count:float: number of times to sample per minute (count/minute), suggested sampling count: <=6/min
-    @param: sampling_time:float: time the sampling will last in minute (minute), suggested time: <10 min
+    @param sampling_count:float: number of times to sample per minute (count/minute), suggested sampling count: <=6/min
+    @param sampling_time:float: time the sampling will last in minute (minute), suggested time: <10 min
+    @param get_result_format:str: what to use as result dict key, name = station name, id = station id
+    @return dict of (str:float): for each station in area, return the average pm25 collected
     '''
-    def get_average_pm25_per_station(self, sampling_count=5, sampling_time=1):
+    def get_average_pm25_per_station(self, sampling_count=5, sampling_time=1, get_result_format="name"):
         if sampling_count <= 0:
             raise AttributeError("Cannot process negative or zero sampling count")
         if sampling_time <= 0:
@@ -96,9 +98,8 @@ class PM25_Calculator:
         
         #calculate total number of times sampling, round this to get integer
         total_sample_number = round(sampling_count * sampling_time) if total_sample_number >= 1 else 1
-
-        #init
-        #TODO make sure even if one request failed, average can still be calculated
+        
+        # initialize station dict
         for station in station_ids:
             pm25_per_station[station] = 0
             request_per_station[station] = 0
@@ -113,20 +114,17 @@ class PM25_Calculator:
                 except Exception:
                     fail_count += 1
                     print(f"A request to station {station} failed")
+                    # if too many request failed, throw warning
                     if fail_count >= total_sample_number * len(station_ids) / 100:
                         fail_count = -total_sample_number * len(station_ids) # larger than total request number so Warning never triggers again
                         raise Warning("Too many failed requests, upstream service may not be functioning correctly")
                     
                     
         #place data in map for return 
-        station_average_data = dict(zip(station_names, pm25_per_station))
-        '''
-        #print("---PM 2.5 for each station:---")
-        for station_index in range(len(station_names)):
-            print(station_names[station_index] + ": " + station_average_data[station_index])
-
-        #print(f"---Average PM 2.5 for all stations in region: {pm25avg}---")
-        '''
+        if get_result_format.lower == "id":
+            station_average_data = dict(zip(station_ids, pm25_per_station))
+        else:
+            station_average_data = dict(zip(station_names, pm25_per_station))
         
         return station_average_data
 
