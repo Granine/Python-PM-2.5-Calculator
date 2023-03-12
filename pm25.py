@@ -64,7 +64,7 @@ class PM25_Calculator:
         station_average_data = self.get_average_pm25_per_station(sampling_count, sampling_time)
         pm25_net = 0
         
-        # calculate the net pm2.5 from all station
+        # calculate the net average pm2.5 from all station
         for station_name in station_average_data:
             pm25_net += station_average_data[station_name]
             
@@ -86,7 +86,7 @@ class PM25_Calculator:
             raise AttributeError("Cannot process negative or zero sampling time")
         
         #get stations based on location region specified
-        station_ids = self.get_station_uids(lat1, lng1, lat2, lng2)
+        station_ids = self.get_station_ids(lat1, lng1, lat2, lng2)
         station_names = self.get_station_names(lat1, lng1, lat2, lng2) # this is added for readability of result
         
         #station ID is a better indication of station globally
@@ -131,7 +131,7 @@ class PM25_Calculator:
     '''search for all monitor station in defined region
     @return: Array of station ID in region (using ID instead of name as search by stations do not return city name needed for city feed
     '''
-    def get_station_uids(self):
+    def get_station_ids(self):
         response = requests.get((f"https://api.waqi.info//map/bounds?token={self.waqi_token}&latlng=" + self.lat1 + "," + self.lng1 + "," + self.lat2 + "," + self.lng2))
         stationInArea = json.loads(response.text)
         stations = []
