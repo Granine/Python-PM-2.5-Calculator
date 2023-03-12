@@ -164,12 +164,12 @@ if __name__ == "__main__":
     # Checking python parameter when file is directly provoked
     if len(sys.argv) <= 4:
         raise AttributeError("Number of argument under requirement, make sure to provide all 2 coordinates")
-    lat1 = sys.argv[1]
-    lng1 = sys.argv[2]
-    lat2 = sys.argv[3]
-    lng2 = sys.argv[4]
-    sampling_count = sys.argv[5] if len(sys.argv) >= 6 else - 1
-    sampling_time = sys.argv[6] if len(sys.argv) >= 7 else - 1
+    lat1:float = sys.argv[1]
+    lng1:float = sys.argv[2]
+    lat2:float = sys.argv[3]
+    lng2:float = sys.argv[4]
+    sampling_count:float = sys.argv[5] if len(sys.argv) >= 6 else - 1
+    sampling_time:float = sys.argv[6] if len(sys.argv) >= 7 else - 1
     if len(sys.argv) >= 8:
         raise Warning("Input argument number beyond needed, extra argument ignored.")
     
