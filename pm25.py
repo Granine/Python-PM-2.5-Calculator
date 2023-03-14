@@ -55,7 +55,7 @@ class PM25_Calculator:
         else:
             raise AttributeError("No waqi.com token provided")
         
-    ''' Get average pm2.5 from all stations in area
+    ''' Get average pm2.5 from all stations in the area
     @param: sampling_frequency:float: number of times to sample per minute (count/minute), suggested sampling count: <=6/min
     @param: sampling_time:float: time the sampling will last in minute (minute), suggested time: <10 min
     '''
