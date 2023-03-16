@@ -30,15 +30,17 @@ class PM25_Calculator:
     
     waqi_token:str = "" # one can but should not be leaving tokens here, environment variable is suggested
     
-    '''calculate average of air pollutant PM2.5 over n minutes for each station and average of all station in a specified region
-    def pm25Calc(lat1, lng1, lat2, lng2, sampling_frequency=5, sampling_time=1):
-    @param: lat1:float: latitude of first position to lock
-    @param: lng1:float: longitude of first position to lock
-    @param: lat2:float: latitude of second position to lock
-    @param: lng2:float: longitude of second position to lock
-    @param: waqi_token:string: time the sampling will last in minute, suggested time: <10 min
-    '''
+    
     def __init__(self, lat1, lng1, lat2, lng2, waqi_token=""):
+        '''calculate average of air pollutant PM2.5 over n minutes for each station and average of all station in a specified region
+        def pm25Calc(lat1, lng1, lat2, lng2, sampling_frequency=5, sampling_time=1):
+        @param `lat1:float` latitude of first position to lock
+        @param `lng1:float` longitude of first position to lock
+        @param `lat2:float` latitude of second position to lock
+        @param `lng2:float` longitude of second position to lock
+        @param `waqi_token:string` time the sampling will last in minute, suggested time: <10 min
+        @return `:None`
+        '''
         # Parameter and Argument normalization
         self.lat1:float = lat1
         self.lng1:float = lng1
@@ -55,11 +57,12 @@ class PM25_Calculator:
         else:
             raise AttributeError("No waqi.com token provided")
         
-    ''' Get average pm2.5 from all stations in the area
-    @param: sampling_frequency:float: number of times to sample per minute (count/minute), suggested sampling count: <=6/min
-    @param: sampling_time:float: time the sampling will last in minute (minute), suggested time: <10 min
-    '''
+    
     def get_average_pm25(self, sampling_frequency=5, sampling_time=1):
+        ''' Get average pm2.5 from all stations in the area
+        @param  `sampling_frequency:float` number of times to sample per minute (count/minute), suggested sampling count is <=6/min
+        @param  `sampling_time:float` time the sampling will last in minute (minute), suggested time is <10 min
+        '''
         # get all average for each station
         station_average_data = self.get_average_pm25_per_station(sampling_frequency, sampling_time)
         pm25_net = 0
@@ -73,13 +76,14 @@ class PM25_Calculator:
         
         return pm25_avg
     
-    ''' Get average pm2.5 for each station in the area
-    @param sampling_frequency:float: number of times to sample per minute (count/minute), suggested sampling count: <=6/min
-    @param sampling_time:float: time the sampling will last in minute (minute), suggested time: <10 min
-    @param get_result_format:str: what to use as result dict key, name = station name, id = station id
-    @return dict of (str:float): for each station in area, return the average pm25 collected
-    '''
+    
     def get_average_pm25_per_station(self, sampling_frequency=5, sampling_time=1, get_result_format="name"):
+        ''' Get average pm2.5 for each station in the area
+        @param `sampling_frequency:float` number of times to sample per minute (count/minute), suggested sampling count is <=6/min
+        @param `sampling_time:float` time the sampling will last in minute (minute), suggested time is <10 min
+        @param `get_result_format:str` what to use as result dict key, name = station name, id = station id
+        @return `dict` of `{str:float}` for each station in area, return the average pm25 collected
+        '''`
         if sampling_frequency <= 0:
             raise AttributeError("Cannot process negative or zero sampling count")
         if sampling_time <= 0:
@@ -103,15 +107,12 @@ class PM25_Calculator:
         for station in station_ids:
             pm25_per_station[station] = 0
             request_per_station[station] = 0
-        print(1)
 
         #sampling afterword
         for i in range(total_sample_number):
             if i > 0:
-                print(2)
                 time.sleep(60 / sampling_frequency)
             for station in station_ids:
-                print(3)
                 try:
                     pm25_per_station[station] += self.get_pm25(station)
                     request_per_station[station] += 1
@@ -132,21 +133,22 @@ class PM25_Calculator:
         
         return station_average_data
 
-    '''search for all monitor station in defined region
-    @return: Array of station ID in region (using ID instead of name as search by stations do not return city name needed for city feed
-    '''
     def get_station_ids(self):
+        '''search for all monitor station in defined region
+        @return `:list` of `str` of station ID in region (using ID instead of name as search by stations do not return city name needed for city feed
+        '''
         response = requests.get((f"https://api.waqi.info//map/bounds?token={self.waqi_token}&latlng=" + self.lat1 + "," + self.lng1 + "," + self.lat2 + "," + self.lng2))
         stationInArea = json.loads(response.text)
         stations = []
         for x in stationInArea["data"]:
-            stations.append(x["uid"])
+            stations.append(str(x["uid"]))
         return stations
 
-    '''search for all monitor station in defined region
-    @return: list: station name for printing
-    '''
+    
     def get_station_names(self):
+        '''search for all monitor station in defined region
+        @return `:list` of `str` station name for printing
+        '''
         response = requests.get((f"https://api.waqi.info//map/bounds?token={self.waqi_token}&latlng=" + self.lat1 + "," + self.lng1 + "," + self.lat2 + "," + self.lng2))
         stationInArea = json.loads(response.text)
         station_names = []
@@ -155,13 +157,13 @@ class PM25_Calculator:
         return station_names
 
     '''Given stationID, return current pm2.5 
-    @param stationID: id of the station to query
-    @return: current pm2.5 data of station (micro grams/cubic meter)
+    @param `stationID:list` id of the station to query
+    @return `:float` Current pm2.5 data of station (micro grams/cubic meter)
     '''
-    def get_pm25(self, stationID):
+    def get_pm25(self, stationID:list) -> float:
         response = requests.get(f"https://api.waqi.info/feed/@{str(stationID)}/?token={self.waqi_token}")
         stationData = json.loads(response.text)
-        return stationData["data"]["iaqi"]["pm25"]["v"]
+        return float(stationData["data"]["iaqi"]["pm25"]["v"])
 
 
 if __name__ == "__main__":
