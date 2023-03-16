@@ -30,7 +30,6 @@ class PM25_Calculator:
     
     waqi_token:str = "" # one can but should not be leaving tokens here, environment variable is suggested
     
-    
     def __init__(self, lat1, lng1, lat2, lng2, waqi_token=""):
         '''calculate average of air pollutant PM2.5 over n minutes for each station and average of all station in a specified region
         def pm25Calc(lat1, lng1, lat2, lng2, sampling_frequency=5, sampling_time=1):
@@ -76,17 +75,16 @@ class PM25_Calculator:
         
         return pm25_avg
     
-    
     def get_average_pm25_per_station(self, sampling_frequency=5, sampling_time=1, get_result_format="name"):
         ''' Get average pm2.5 for each station in the area
         @param `sampling_frequency:float` number of times to sample per minute (count/minute), suggested sampling count is <=6/min
         @param `sampling_time:float` time the sampling will last in minute (minute), suggested time is <10 min
         @param `get_result_format:str` what to use as result dict key, name = station name, id = station id
         @return `dict` of `{str:float}` for each station in area, return the average pm25 collected
-        '''`
+        '''
         if sampling_frequency <= 0:
             raise AttributeError("Cannot process negative or zero sampling count")
-        if sampling_time <= 0:
+        elif sampling_time <= 0:
             raise AttributeError("Cannot process negative or zero sampling time")
         
         #get stations based on location region specified
@@ -112,6 +110,7 @@ class PM25_Calculator:
         for i in range(total_sample_number):
             if i > 0:
                 time.sleep(60 / sampling_frequency)
+                
             for station in station_ids:
                 try:
                     pm25_per_station[station] += self.get_pm25(station)
@@ -123,8 +122,7 @@ class PM25_Calculator:
                     if fail_count >= total_sample_number * len(station_ids) / 100:
                         fail_count = -total_sample_number * len(station_ids) # larger than total request number so Warning never triggers again
                         raise Warning("Too many failed requests, upstream service may not be functioning correctly")
-                    
-                    
+                         
         #place data in map for return 
         if get_result_format.lower == "id":
             station_average_data = dict(zip(station_ids, pm25_per_station))
@@ -140,10 +138,10 @@ class PM25_Calculator:
         response = requests.get((f"https://api.waqi.info//map/bounds?token={self.waqi_token}&latlng=" + self.lat1 + "," + self.lng1 + "," + self.lat2 + "," + self.lng2))
         stationInArea = json.loads(response.text)
         stations = []
+        
         for x in stationInArea["data"]:
             stations.append(str(x["uid"]))
         return stations
-
     
     def get_station_names(self):
         '''search for all monitor station in defined region
@@ -165,7 +163,6 @@ class PM25_Calculator:
         stationData = json.loads(response.text)
         return float(stationData["data"]["iaqi"]["pm25"]["v"])
 
-
 if __name__ == "__main__":
     # Checking python parameter when file is directly provoked
     if len(sys.argv) <= 4:
@@ -176,6 +173,7 @@ if __name__ == "__main__":
     lng2:float = sys.argv[4]
     sampling_frequency:float = float(sys.argv[5]) if len(sys.argv) >= 6 else - 1
     sampling_time:float = float(sys.argv[6]) if len(sys.argv) >= 7 else - 1
+    
     if len(sys.argv) >= 8:
         raise Warning("Input argument number beyond needed, extra argument ignored.")
     
