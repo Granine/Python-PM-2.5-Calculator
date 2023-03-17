@@ -54,13 +54,13 @@ class PM25_Calculator:
         self.lat2:float = lat2
         self.lng2:float = lng2
         
-        # if waqi passed in, it should have the highest priority
+        # If waqi passed in, it should have the highest priority
         if waqi_token:
             self.waqi_token = waqi_token
-        # then read from environment variable
+        # Then read from environment variable
         elif "waqi_token" in os.environ:
             self.waqi_token = str(os.environ["waqi_token"])
-        # if both not found, error
+        # If both not found, error
         else:
             raise AttributeError("No waqi.com token provided")
         
@@ -70,15 +70,15 @@ class PM25_Calculator:
         @param `sampling_frequency:float` number of times to sample per minute (count/minute), suggested sampling count is <=6/min
         @param `sampling_time:float` time the sampling will last in minute (minute), suggested time is <10 min
         '''
-        # get all average for each station
+        # Get all average for each station
         station_average_data = self.get_average_pm25_per_station(sampling_frequency, sampling_time)
         pm25_net = 0
         
-        # calculate the net average pm2.5 from all station
+        # Calculate the net average pm2.5 from all station
         for station_name in station_average_data:
             pm25_net += station_average_data[station_name]
             
-        # average out 
+        # Average out pm 2.5
         pm25_avg = pm25_net / len(station_average_data)
         
         return pm25_avg
@@ -95,26 +95,26 @@ class PM25_Calculator:
         elif sampling_time <= 0:
             raise AttributeError("Cannot process negative or zero sampling time")
         
-        #get stations based on location region specified
+        # Get stations based on location region specified
         station_ids = self.get_station_ids()
         station_names = self.get_station_names() # this is added for readability of result
         
-        #station ID is a better indication of station globally
+        #Station ID is a better indication of station globally
         pm25_per_station = {}
         request_per_station = {}
         
-        # counter to calculate max fail
+        # Counter to calculate max fail
         fail_count = 0
         
-        #calculate total number of times sampling, round this to get integer
+        # Calculate total number of times sampling, round this to get integer
         total_sample_number = round(sampling_frequency * sampling_time) if sampling_frequency * sampling_time >= 1 else 1
         
-        # initialize station dict
+        # Initialize station dict
         for station in station_ids:
             pm25_per_station[station] = 0
             request_per_station[station] = 0
 
-        #sampling afterword
+        # Sampling based on total sample number and frequency
         for i in range(total_sample_number):
             if i > 0:
                 time.sleep(60 / sampling_frequency)
