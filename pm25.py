@@ -10,13 +10,21 @@ Additional Requirements:
 - Parameter passible through function arguments
 - Concurrency safe
 
+For command line application: 
+    [1] parameter is latitude of type float, part of first position to lock
+    [2] parameter is longitude of type float, part of first position to lock
+    [3] parameter is latitude of type float, part of second position to lock
+    [4] parameter is longitude of type float, part of second position to lock
+    [5] parameter is sampling frequency of type float, it is the number of count to sample pm 2.5 per minute
+    [6] parameter is sampling period of type float, the number of minutes to sample pm 2.5
+
 sample powershell command:
-sample 8 times per minute for 2 minutes (3 stations)
-    python pm25.py 39 116 41 116.04 2 8
-sample 1 times per minute for 3 minutes
-    python pm25.py 39 116 41 116.04 3
-sample 1 times per minute for 5 minutes
-    python pm25.py 39 116 41 116.04 
+    sample 8 times per minute for 2 minutes (3 stations)
+        python pm25.py 39 116 41 116.04 2 8
+    sample 1 times per minute for 3 minutes
+        python pm25.py 39 116 41 116.04 3
+    sample 1 times per minute for 5 minutes
+        python pm25.py 39 116 41 116.04 
 '''
 
 import sys
@@ -161,7 +169,7 @@ class PM25_Calculator:
         @return `:float` Current pm2.5 data of station (micro grams/cubic meter)
         '''
         response = requests.get(f"https://api.waqi.info/feed/@{str(stationID)}/?token={self.waqi_token}")
-        stationData = json.loads(response.text)
+        stationData = json.loads(response.text, )
         return float(stationData["data"]["iaqi"]["pm25"]["v"])
 
 if __name__ == "__main__":
