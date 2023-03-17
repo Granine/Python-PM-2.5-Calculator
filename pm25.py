@@ -123,7 +123,7 @@ class PM25_Calculator:
                         fail_count = -total_sample_number * len(station_ids) # larger than total request number so Warning never triggers again
                         raise Warning("Too many failed requests, upstream service may not be functioning correctly")
                          
-        #place data in map for return 
+        # place result in dict based on user requested format
         if get_result_format.lower == "id":
             station_average_data = dict(zip(station_ids, pm25_per_station))
         else:
@@ -180,4 +180,4 @@ if __name__ == "__main__":
     # Pass result to calculator class
     param_calculator = PM25_Calculator(lat1, lng1, lat2, lng2)
     pm25_avg = param_calculator.get_average_pm25(sampling_frequency, sampling_time)
-    print(f"---Average PM 2.5 for all stations in region: {pm25_avg} mg/m^3---")
+    print(f"---Average PM 2.5 for all stations in the region: {pm25_avg} mg/m^3---")
