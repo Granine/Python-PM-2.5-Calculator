@@ -118,12 +118,12 @@ class PM25_Calculator:
                 except Exception:
                     fail_count += 1
                     print(f"A request to station {station} failed")
-                    # if too many request failed, throw warning
+                    # If too many request failed, throw warning
                     if fail_count >= total_sample_number * len(station_ids) / 100:
                         fail_count = -total_sample_number * len(station_ids) # larger than total request number so Warning never triggers again
                         raise Warning("Too many failed requests, upstream service may not be functioning correctly")
                          
-        # place result in dict based on user requested format
+        # Place result in dict based on user requested format
         if get_result_format.lower == "id":
             station_average_data = dict(zip(station_ids, pm25_per_station))
         else:
@@ -132,7 +132,7 @@ class PM25_Calculator:
         return station_average_data
 
     def get_station_ids(self):
-        '''search for all monitor station in defined region
+        '''Search for all monitor station in defined region
         @return `:list` of `str` of station ID in region (using ID instead of name as search by stations do not return city name needed for city feed
         '''
         response = requests.get((f"https://api.waqi.info//map/bounds?token={self.waqi_token}&latlng=" + self.lat1 + "," + self.lng1 + "," + self.lat2 + "," + self.lng2))
@@ -144,7 +144,7 @@ class PM25_Calculator:
         return stations
     
     def get_station_names(self):
-        '''search for all monitor station in defined region
+        '''Search for all monitor station in defined region
         @return `:list` of `str` station name for printing
         '''
         response = requests.get((f"https://api.waqi.info//map/bounds?token={self.waqi_token}&latlng=" + self.lat1 + "," + self.lng1 + "," + self.lat2 + "," + self.lng2))
@@ -154,11 +154,12 @@ class PM25_Calculator:
             station_names.append(x["station"]["name"])
         return station_names
 
-    '''Given stationID, return current pm2.5 
-    @param `stationID:list` id of the station to query
-    @return `:float` Current pm2.5 data of station (micro grams/cubic meter)
-    '''
+    
     def get_pm25(self, stationID:list) -> float:
+        '''Given stationID, return current pm2.5 
+        @param `stationID:list` id of the station to query
+        @return `:float` Current pm2.5 data of station (micro grams/cubic meter)
+        '''
         response = requests.get(f"https://api.waqi.info/feed/@{str(stationID)}/?token={self.waqi_token}")
         stationData = json.loads(response.text)
         return float(stationData["data"]["iaqi"]["pm25"]["v"])
