@@ -59,8 +59,8 @@ class PM25_Calculator:
     
     def get_average_pm25(self, sampling_frequency=5, sampling_time=1):
         ''' Get average pm2.5 from all stations in the area
-        @param  `sampling_frequency:float` number of times to sample per minute (count/minute), suggested sampling count is <=6/min
-        @param  `sampling_time:float` time the sampling will last in minute (minute), suggested time is <10 min
+        @param `sampling_frequency:float` number of times to sample per minute (count/minute), suggested sampling count is <=6/min
+        @param `sampling_time:float` time the sampling will last in minute (minute), suggested time is <10 min
         '''
         # get all average for each station
         station_average_data = self.get_average_pm25_per_station(sampling_frequency, sampling_time)
