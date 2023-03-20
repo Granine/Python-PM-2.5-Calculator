@@ -183,7 +183,7 @@ if __name__ == "__main__":
     sampling_time:float = float(sys.argv[6]) if len(sys.argv) >= 7 else - 1
     
     if len(sys.argv) >= 8:
-        raise Warning("Input argument number beyond needed, extra argument ignored.")
+        raise Warning("Input argument number beyond maximum, extra arguments are ignored.")
     
     # Pass result to calculator class
     param_calculator = PM25_Calculator(lat1, lng1, lat2, lng2)
