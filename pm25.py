@@ -1,14 +1,14 @@
 
 '''
 ------------------Start of reading------------------------
-Date: April 26, 2022
+Project Start Date: April 26, 2022
 Author: Guan Huang
 Project Description: Air pollutant PM2.5 calculator within input region (average, and more)
 Project Purpose: Create a tool that can be easily embedded into any software application
 Additional Requirements: 
-- Parameter passible through python arguments
-- Parameter passible through function arguments
-- Concurrency safe
+    - Parameter passible through python arguments
+    - Parameter passible through function arguments
+    - Concurrency safe
 
 For command line application: 
     [1] parameter is latitude of type float, part of first position to lock
@@ -40,7 +40,6 @@ class PM25_Calculator:
     
     def __init__(self, lat1:float, lng1:float, lat2:float, lng2:float, waqi_token:str=""):
         '''calculate average of air pollutant PM2.5 over n minutes for each station and average of all station in a specified region
-        def pm25Calc(lat1, lng1, lat2, lng2, sampling_frequency=5, sampling_time=1):
         @param `lat1:float` latitude of first position to lock
         @param `lng1:float` longitude of first position to lock
         @param `lat2:float` latitude of second position to lock
@@ -65,7 +64,7 @@ class PM25_Calculator:
             raise AttributeError("No waqi.com token provided")
         
     
-    def get_average_pm25(self, sampling_frequency:int=5, sampling_time:int=1) -> float:
+    def get_average_pm25(self, sampling_frequency:float=5, sampling_float:int=1) -> float:
         ''' Get average pm2.5 from all stations in the area
         @param `sampling_frequency:float` number of times to sample per minute (count/minute), suggested sampling count is <=6/min
         @param `sampling_time:float` time the sampling will last in minute (minute), suggested time is <10 min
@@ -83,7 +82,7 @@ class PM25_Calculator:
         
         return pm25_avg
     
-    def get_average_pm25_per_station(self, sampling_frequency:int=5, sampling_time:int=1, get_result_format:str="name") -> dict:
+    def get_average_pm25_per_station(self, sampling_frequency:float=5, sampling_time:float=1, get_result_format:str="name") -> dict:
         ''' Get average pm2.5 for each station in the area
         @param `sampling_frequency:float` number of times to sample per minute (count/minute), suggested sampling count is <=6/min
         @param `sampling_time:float` time the sampling will last in minute (minute), suggested time is <10 min
