@@ -38,7 +38,7 @@ class PM25_Calculator:
     
     waqi_token:str = "" # one can but should not be leaving tokens here, environment variable is suggested
     
-    def __init__(self, lat1, lng1, lat2, lng2, waqi_token=""):
+    def __init__(self, lat1:float, lng1:float, lat2:float, lng2:float, waqi_token:str=""):
         '''calculate average of air pollutant PM2.5 over n minutes for each station and average of all station in a specified region
         def pm25Calc(lat1, lng1, lat2, lng2, sampling_frequency=5, sampling_time=1):
         @param `lat1:float` latitude of first position to lock
@@ -65,7 +65,7 @@ class PM25_Calculator:
             raise AttributeError("No waqi.com token provided")
         
     
-    def get_average_pm25(self, sampling_frequency=5, sampling_time=1):
+    def get_average_pm25(self, sampling_frequency:int=5, sampling_time:int=1) -> float:
         ''' Get average pm2.5 from all stations in the area
         @param `sampling_frequency:float` number of times to sample per minute (count/minute), suggested sampling count is <=6/min
         @param `sampling_time:float` time the sampling will last in minute (minute), suggested time is <10 min
@@ -83,7 +83,7 @@ class PM25_Calculator:
         
         return pm25_avg
     
-    def get_average_pm25_per_station(self, sampling_frequency=5, sampling_time=1, get_result_format="name"):
+    def get_average_pm25_per_station(self, sampling_frequency:int=5, sampling_time:int=1, get_result_format:str="name") -> dict:
         ''' Get average pm2.5 for each station in the area
         @param `sampling_frequency:float` number of times to sample per minute (count/minute), suggested sampling count is <=6/min
         @param `sampling_time:float` time the sampling will last in minute (minute), suggested time is <10 min
@@ -139,7 +139,7 @@ class PM25_Calculator:
         
         return station_average_data
 
-    def get_station_ids(self):
+    def get_station_ids(self) -> list:
         '''Search for all monitor station in defined region
         @return `:list` of `str` of station ID in region (using ID instead of name as search by stations do not return city name needed for city feed
         '''
@@ -151,7 +151,7 @@ class PM25_Calculator:
             stations.append(str(x["uid"]))
         return stations
     
-    def get_station_names(self):
+    def get_station_names(self) -> list:
         '''Search for all monitor station in defined region
         @return `:list` of `str` station name for printing
         '''
