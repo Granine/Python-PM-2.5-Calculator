@@ -1,12 +1,26 @@
 import sys
-sys.path.append("../..")
 import os
+sys.path.append(f"{__file__}/../..")
 import pm25
 
 def random_area_1():
+    # A random area with stations
     return (54, -354, 55, -355)
 
 def test_pm_25_class_initialization():
+    '''Basic test to ensure class can be initialized
+    '''
     os.environ["waqi_token"] = "DUMMY"
     pm25_calc = pm25.PM25_Calculator(*random_area_1())
-    print (type(pm25_calc))
+    assert type(pm25_calc) == pm25.PM25_Calculator
+    
+def test_pm_25_class_no_token():
+    '''Make sure class fails initialization if no token detected
+    '''
+    if "waqi_token" in os.environ.keys(): del(os.environ["waqi_token"])
+    try:
+        pm25_calc = pm25.PM25_Calculator(*random_area_1())
+    except AttributeError:
+        pass
+    else:
+        assert "Class did not error out without token" == 0
