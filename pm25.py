@@ -96,9 +96,8 @@ class PM25_Calculator:
         
         # Get stations based on location region specified
         station_ids = self.get_station_ids()
-        station_names = self.get_station_names() # this is added for readability of result
+        station_names = self.get_station_names()
         
-        #Station ID is a better indication of station globally
         pm25_per_station = {}
         request_per_station = {}
         
@@ -106,7 +105,7 @@ class PM25_Calculator:
         fail_count = 0
         
         # Calculate total number of times sampling, round this to get integer
-        total_sample_number = round(sampling_frequency * sampling_time) if sampling_frequency * sampling_time >= 1 else 1
+        total_sample_number = round(sampling_frequency * sampling_time) if sampling_frequency * sampling_time > 1 else 1
         
         # Initialize station dict
         for station in station_ids:
@@ -126,9 +125,9 @@ class PM25_Calculator:
                     fail_count += 1
                     print(f"A request to station {station} failed")
                     # If too many request failed, throw warning
-                    if fail_count >= total_sample_number * len(station_ids) / 100:
-                        fail_count = -total_sample_number * len(station_ids) # larger than total request number so Warning never triggers again
-                        raise Warning("Too many failed requests, upstream service may not be functioning correctly")
+                    if fail_count >= (total_sample_number * len(station_ids) / 100):
+                        fail_count = -(total_sample_number * len(station_ids)) # Set fail count negatively larger than total request number so Warning never triggers again
+                        raise Warning("High volume of request failed, upstream service may not be functioning correctly")
                          
         # Place result in dict based on user requested format
         if get_result_format.lower == "id":
@@ -157,6 +156,7 @@ class PM25_Calculator:
         response = requests.get((f"https://api.waqi.info//map/bounds?token={self.waqi_token}&latlng=" + self.lat1 + "," + self.lng1 + "," + self.lat2 + "," + self.lng2))
         stationInArea = json.loads(response.text)
         station_names = []
+        
         for x in stationInArea["data"]:
             station_names.append(x["station"]["name"])
         return station_names
