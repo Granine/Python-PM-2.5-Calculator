@@ -1,6 +1,6 @@
 import sys
-sys.path.append("../..")
 import os
+sys.path.append(f"{__file__}/../..")
 import pm25
 
 def random_area_1():
