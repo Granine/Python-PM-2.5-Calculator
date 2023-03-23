@@ -5,7 +5,7 @@ import pm25
 
 def random_area_1():
     # A random area with stations
-    return (54, -354, 55, -355)
+    return (54, -354, 55, -354.5)
 
 def test_pm_25_class_initialization():
     '''Basic test to ensure class can be initialized
