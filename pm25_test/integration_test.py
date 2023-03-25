@@ -9,7 +9,6 @@ def random_area_1():
 
 def test_pm_25_class_initialization():
     '''Basic test to ensure class can be initialized
-    
     '''
     os.environ["waqi_token"] = "DUMMY"
     pm25_calc = pm25.PM25_Calculator(*random_area_1())

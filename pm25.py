@@ -90,7 +90,7 @@ class PM25_Calculator:
         @return `dict` of `{str:float}` for each station in area, return the average pm25 collected
         '''
         if sampling_frequency <= 0:
-            raise AttributeError("Cannot process negative or zero sampling count")
+            raise AttributeError("Cannot process negative or zero sampling frequency")
         elif sampling_time <= 0:
             raise AttributeError("Cannot process negative or zero sampling time")
         
