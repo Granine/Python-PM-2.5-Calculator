@@ -57,14 +57,14 @@ class PM25_Calculator:
         if waqi_token:
             self.waqi_token = waqi_token
         # Then read from environment variable
-        elif "waqi_token" in os.environ:
+        elif "waqi_token" in os.environ and os.environ["waqi_token"]:
             self.waqi_token = str(os.environ["waqi_token"])
         # If both not found, error
         else:
             raise AttributeError("No waqi.com token provided")
         
     
-    def get_average_pm25(self, sampling_frequency:float=5, sampling_float:int=1) -> float:
+    def get_average_pm25(self, sampling_frequency:float=5, sampling_time:int=1) -> float:
         ''' Get average pm2.5 from all stations in the area
         @param `sampling_frequency:float` number of times to sample per minute (count/minute), suggested sampling count is <=6/min
         @param `sampling_time:float` time the sampling will last in minute (minute), suggested time is <10 min
@@ -75,7 +75,7 @@ class PM25_Calculator:
         
         # Calculate the net average pm2.5 from all station
         for station_name in station_average_data:
-            pm25_net += station_average_data[station_name]
+            pm25_net += float(station_average_data[station_name])
             
         # Average out pm 2.5
         pm25_avg = pm25_net / len(station_average_data)
@@ -90,8 +90,8 @@ class PM25_Calculator:
         @return `dict` of `{str:float}` for each station in area, return the average pm25 collected
         '''
         if sampling_frequency <= 0:
-            raise AttributeError("Cannot process negative or zero sampling count")
-        elif sampling_time <= 0:
+            raise AttributeError("Cannot process negative or zero sampling frequency")
+        elif sampling_time < 0:
             raise AttributeError("Cannot process negative or zero sampling time")
         
         # Get stations based on location region specified
@@ -119,7 +119,7 @@ class PM25_Calculator:
                 
             for station in station_ids:
                 try:
-                    pm25_per_station[station] += self.get_pm25(station)
+                    pm25_per_station[station] += float(self.get_pm25(station))
                     request_per_station[station] += 1
                 except Exception:
                     fail_count += 1
@@ -141,10 +141,14 @@ class PM25_Calculator:
         '''Search for all monitor station in defined region
         @return `:list` of `str` of station ID in region (using ID instead of name as search by stations do not return city name needed for city feed
         '''
-        response = requests.get((f"https://api.waqi.info//map/bounds?token={self.waqi_token}&latlng=" + self.lat1 + "," + self.lng1 + "," + self.lat2 + "," + self.lng2))
+        response = requests.get(f"https://api.waqi.info/v2/map/bounds?token={self.waqi_token}&latlng={str(self.lat1)},{str(self.lng1)},{str(self.lat2)},{str(self.lng2)}")
         stationInArea = json.loads(response.text)
         stations = []
-        
+        if stationInArea["status"] == "error":
+            if stationInArea["data"] == "Invalid key":
+                raise AttributeError("Invalid key")
+            else:
+                raise ConnectionRefusedError("waqi responded with error {0}".format(stationInArea["data"]))
         for x in stationInArea["data"]:
             stations.append(str(x["uid"]))
         return stations
@@ -153,10 +157,14 @@ class PM25_Calculator:
         '''Search for all monitor station in defined region
         @return `:list` of `str` station name for printing
         '''
-        response = requests.get((f"https://api.waqi.info//map/bounds?token={self.waqi_token}&latlng=" + self.lat1 + "," + self.lng1 + "," + self.lat2 + "," + self.lng2))
+        response = requests.get((f"https://api.waqi.info/v2/map/bounds?token={self.waqi_token}&latlng={str(self.lat1)},{str(self.lng1)},{str(self.lat2)},{str(self.lng2)}"))
         stationInArea = json.loads(response.text)
         station_names = []
-        
+        if stationInArea["status"] == "error":
+            if stationInArea["status"] == "Invalid key":
+                raise AttributeError("Invalid key")
+            else:
+                raise ConnectionRefusedError("waqi responded with error {0}".format(stationInArea["data"]))
         for x in stationInArea["data"]:
             station_names.append(x["station"]["name"])
         return station_names
@@ -168,7 +176,12 @@ class PM25_Calculator:
         @return `:float` Current pm2.5 data of station (micro grams/cubic meter)
         '''
         response = requests.get(f"https://api.waqi.info/feed/@{str(stationID)}/?token={self.waqi_token}")
-        stationData = json.loads(response.text, )
+        stationData = json.loads(response.text)
+        if stationData["status"] == "error":
+            if stationData["data"] == "Invalid key":
+                raise AttributeError("Invalid key")
+            else:
+                raise ConnectionRefusedError("waqi responded with error {0}".format(stationData["data"]))
         return float(stationData["data"]["iaqi"]["pm25"]["v"])
 
 if __name__ == "__main__":
